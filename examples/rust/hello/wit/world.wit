@@ -1,0 +1,66 @@
+package wasiext:dynamic-examples@0.1.0;
+
+interface types {
+    use wasi:io/poll@0.2.0.{
+        pollable
+    };
+    use wasiext:dynamic/types@0.1.0.{
+        async-return,
+        dynamic-future,
+        dynamic-stream,
+        future-send,
+        stream-send,
+    };
+
+    resource string-future {
+        register-dynamic-type: static func() -> dynamic-future;
+
+        constructor();
+
+        send: static func(this: string-future, value: string) -> future-send;
+
+        subscribe: func() -> pollable;
+        await: func() -> option<string>;
+    }
+
+    resource string-future-return {
+        register-dynamic-type: static func() -> async-return;
+
+        constructor(v: borrow<string-future>);
+
+        subscribe: func() -> pollable;
+        await: static func(this: string-future-return) -> string-future;
+    }
+
+    resource string-stream {
+        register-dynamic-type: static func() -> dynamic-stream;
+
+        constructor();
+
+        send: func(values: list<string>) -> stream-send;
+
+        subscribe: func() -> pollable;
+        receive: func(limit: u32) -> list<string>;
+    }
+
+    resource string-stream-return {
+        register-dynamic-type: static func() -> async-return;
+
+        constructor(v: borrow<string-stream>);
+
+        subscribe: func() -> pollable;
+        await: static func(this: string-stream-return) -> string-stream;
+    }
+}
+
+interface hello {
+    use types.{string-future, string-future-return, string-stream, string-stream-return};
+
+    hello: func(name: borrow<string-future>) -> string-future-return;
+    hello-stream: func(names: borrow<string-stream>) -> string-stream-return;
+}
+
+world component {
+    export hello;
+    import hello;
+}
