@@ -1,0 +1,25 @@
+package wasiext:dynamic-examples@0.1.0;
+
+interface concurrent {
+    use wasi:io/poll@0.2.0.{
+        pollable
+    };
+    use wasiext:dynamic/types@0.1.0.{
+        async-return,
+    };
+
+    resource hello-return {
+        register-dynamic-type: static func() -> async-return;
+
+        subscribe: func() -> pollable;
+        await: static func(this: hello-return) -> string;
+    }
+
+    hello: func() -> hello-return;
+}
+
+world component {
+    export concurrent;
+
+    include wasi:sockets/imports@0.2.0;
+}

@@ -1,0 +1,2 @@
+dynamic = "../../../../wit"
+sockets = "https://github.com/WebAssembly/wasi-sockets/archive/v0.2.0.tar.gz"
